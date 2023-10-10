@@ -1,0 +1,8 @@
+# from app layer examples (app_hello_world)
+bin/*
+cf2.*
+
+# build results
+*.cmd
+*.o
+build/
