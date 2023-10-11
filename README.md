@@ -30,7 +30,7 @@ where ```<radio address>``` should be replaced with the radio address of your Cr
 ## Further Reading
 For more information about the L1 Adaptive Control check out the following publications:
 - Z. Wu, S. Cheng, P. Zhao, A. Gahlawat, K. Ackerman, A. Lakshmanan, C. Yang, J. Yu, and N. Hovakimyan, " $\mathcal{L}_1$ Quad: $\mathcal{L}_1$ Adaptive Augmentation of Geometric Control for Agile Quadrotors with Performance Guarantees," *arXiv preprint arXiv:2302.07208* (2023). [(link)](https://arxiv.org/abs/2302.07208)
-- N. Hovakimyan and C. Cao, * $\mathcal{L}_1$ Adaptive Control Theory: Guaranteed Robustness with Fast Adaptation.* Philadelphia, PA, USA: SIAM, 2010. [(link)](https://my.siam.org/Store/Product/viewproduct/?ProductId=1485)
+- N. Hovakimyan and C. Cao, $\mathcal{L}_1$ Adaptive Control Theory: Guaranteed Robustness with Fast Adaptation. *Philadelphia, PA, USA: SIAM, 2010.* [(link)](https://my.siam.org/Store/Product/viewproduct/?ProductId=1485)
 
 For more information about the Crazyflie platform check out the official Bitcraze documentation:
 - [main website](https://www.bitcraze.io/)
