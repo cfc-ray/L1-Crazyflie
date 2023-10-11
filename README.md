@@ -1,5 +1,19 @@
-# Hello world App for Crazyflie 2.X
+# L1-Crazyflie
 
-This folder contains the app layer application for the Crazyflie to print a hello world debug message, which can be read in the console tab of the [cfclient](https://github.com/bitcraze/crazyflie-clients-python). 
+This project contains an implementation of the L1 Adaptive Control for Crazyflie.
 
-See App layer API guide and build instructions [here](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/userguides/app_layer/)
+## Setup
+1. clone the repository
+```git clone --recursive https://github.com/cfc-ray-L1-Crazyflie```
+
+2. configure the firmware
+```cd crazyflie-firmware```
+```make cf2_defconfig```
+```cd ..```
+
+3. build the firmware
+```make -j 8```
+
+4. flash the firmware to your Crazyflie
+```cfloader flash build/cf2.bin stm32-fw -w  <radio address>```
+    where ```<radio address>``` should be replaced with the radio address of your Crazyflie. For example, if your Crazyflie is operating using radio number 01 and channel E7, you will enter the above command as ```cfloader flash build/cf2.bin stm32-fw -w  radio://0/01/2M/E7E7E7E7E7```
