@@ -58,7 +58,7 @@ python3 hover.py
 
 ## Integration with existing work
 
-It is very straightforward to integrate L1-Crazyflie into a current project! The L1 controller is implemented as an out-of-tree controller in the firmware, so it can be used with any flight control scripts. Simply switch the active low level controller by switching the ```'stabilizer/controller'``` parameter to ```5```, and the L1 Adaptive Control will be activated.  
+It is very straightforward to integrate L1-Crazyflie into a current project. The L1 controller is implemented as an out-of-tree controller in the firmware, so it can be used with any flight control scripts. Simply change the active low level controller by switching the ```'stabilizer/controller'``` parameter to ```5```, and the L1 Adaptive Control will be activated.
 
 ## License
 Please read the license attached to this repository
