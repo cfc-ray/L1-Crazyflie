@@ -1,14 +1,20 @@
 import os
 import time
 import json
+import yaml
 import numpy as np
 from cflib.crazyflie.log import LogConfig
 import cflib.crazyflie as cfc
 
 class SimpleClient:
-    def __init__(self, uri, log_variables=[]):
+    def __init__(self, log_variables=[]):
         self.init_time = time.time()
         self.cf = cfc.Crazyflie(rw_cache='./cache')
+
+        # get uri
+        with open('config.yaml', 'r') as f:
+            data = yaml.safe_load(f)
+        uri = data['uri']
 
         # set callbacks
         self.cf.connected.add_callback(self.connected)

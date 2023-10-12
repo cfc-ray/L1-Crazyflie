@@ -5,14 +5,11 @@ Parameters
     HEIGHT: the height the drone should fly at, in meters
     LENGTH: the side length of the square, in meters
 
-Usage
-    enter "python3 square.py XX" in a terminal, replacing XX with the radio number for your Crazyflie
 '''
 
 import logging
 import time
 import cflib.crtp
-import argparse
 
 from simple_client import SimpleClient
 
@@ -21,17 +18,14 @@ HEIGHT = 0.4
 LENGTH = 1
 
 
-def main(radio: int):
-
-    # configure uri
-    uri = 'radio://0/' + str(radio) + '/2M/E7E7E7E7E7'
+def main():
 
     # setup 
     logging.basicConfig(level=logging.ERROR)
     cflib.crtp.init_drivers()
 
     # Create and start the client that will connect to the drone
-    client = SimpleClient(uri)
+    client = SimpleClient()
     while not client.is_connected:
         print(f' ... connecting ...')
         time.sleep(1.0)
@@ -78,13 +72,4 @@ def main(radio: int):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("radio")
-    args = parser.parse_args()
-    try:
-        radio = int(args.radio)
-    except:
-        print("make sure to include drone radio number (as integer)! exiting...")
-        import sys; sys.exit()
-
-    main(radio)
+    main()
