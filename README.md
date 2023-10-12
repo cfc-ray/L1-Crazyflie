@@ -52,11 +52,12 @@ There is one configuration file: ```config.yaml```, located in the ```flight_com
 
 ## Usage
 
-All that's needed is to run one of the flight scripts in the ```flight_commands/``` directory. For example, to run a simple hover script that allows you to compare the L1 Adaptive Control to the stock Mellinger controller, run the following command
+All that's needed is to run one of the flight scripts in the ```flight_commands/``` directory. We provide a simple hover script that allows you to compare the stock Mellinger controller to that same Mellinger controller augmented with the L1 adaptive control. To use it, run the following command.
 ```
 cd flight_commands
 python3 hover.py
 ```
+Follow the directions printed out in the terminal to turn the L1 adaptive control on and off.
 
 ## Integration with existing work
 
