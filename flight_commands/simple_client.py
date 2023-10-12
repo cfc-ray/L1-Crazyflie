@@ -136,7 +136,7 @@ class SimpleClient:
             break
 
         # write data
-        with open(new_filename, 'w') as outfile:
+        with open('logs/' + new_filename, 'w') as outfile:
             json.dump(self.data, outfile, indent=4, sort_keys=False)
 
     def takeoff(self, z, dt):
