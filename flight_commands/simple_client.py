@@ -117,20 +117,23 @@ class SimpleClient:
         testname = filename[0:-5]
 
         # prepare to check for duplicate filenames
-        dirpath = os.path.dirname(os.path.realpath(__file__))
+        dirpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logs')
         num = 1
         valid_new_filename = False
         new_filename = filename
 
+        # create the logs/ directory if it does not exist yet
+        if not os.path.exists(dirpath):
+            os.makedirs(dirpath)
+
         # check for dupliate filenames
-        for root, _, files in os.walk(dirpath):
-            if root == dirpath:
-                same_file_names = [file for file in files if testname in file]
-                while valid_new_filename == False:
-                    new_filename = testname + str(num) + '.json'
-                    valid_new_filename = True if new_filename not in same_file_names else False
-                    num += 1
-                break
+        for _, _, files in os.walk(dirpath):
+            same_file_names = [file for file in files if testname in file]
+            while valid_new_filename == False:
+                new_filename = testname + str(num) + '.json'
+                valid_new_filename = True if new_filename not in same_file_names else False
+                num += 1
+            break
 
         # write data
         with open(new_filename, 'w') as outfile:
