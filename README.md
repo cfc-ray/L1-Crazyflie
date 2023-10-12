@@ -13,10 +13,8 @@ We *strongly encourage* you to use some additional sensors to help the Crazyflie
 2. **Install dependencies**
 
 Our biggest dependencies are with the Crazyflie ecosystem. Start by installing the client and a toolchain to build the firmware with. Links can be found below
-- [client](https://www.bitcraze.io/documentation/repository/crazyflie-clients-python/master/installation/install/)
-    - work up until the 'Extra' section, then return here
-- [firmware](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/building-and-flashing/build/)
-    - follow the directions to install an ARM toolchain, then return here. we'll cover the rest of the content on this page in a little bit.
+- [client](https://www.bitcraze.io/documentation/repository/crazyflie-clients-python/master/installation/install/) -- work up until the 'Extra' section, then return here
+- [firmware](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/building-and-flashing/build/) -- follow the directions to install an ARM toolchain, then return here. we'll cover the rest of the content on this page in a little bit.
 
 From here, we add a select few dependencies of our own.
 ```
