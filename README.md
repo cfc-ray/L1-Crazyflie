@@ -3,29 +3,28 @@
 This project contains an implementation of the L1 Adaptive Control for Crazyflie.
 
 ## Setup
-1. clone the repository
+
+**If you're new to flying with Crazyflie, follow their official documentation to assemble the drone, download and install the client (cflib), build and flash the firmware, and configure radio permissions. You should be able to connect to the Crazyflie remotely using the Crazyradio before you move on.** 
+
+1. clone this repository
 ```
 git clone --recursive https://github.com/cfc-ray-L1-Crazyflie
 ```
 
-2. configure the firmware
-
+2. build the firmware
+The L1 adaptive controller has been implemented using the app layer in the Crazyflie firmware. This means there are no modifications needed to the main firmware, we just need to compile this additional code and tell it where to insert itself in the main firmware (which we do automatically). To compile, follow the steps below
 ```
-cd crazyflie-firmware
-make cf2_defconfig
-cd ..
-```
-
-3. build the firmware
-```
-make -j 8
+cd controller_L1
+make
 ```
 
-4. flash the firmware to your Crazyflie
+3. flash the firmware to your Crazyflie
+Ensure your Crazyflie is powered on and a Crazyradio is connected to your computer. Then run the following command.
 ```
 cfloader flash build/cf2.bin stm32-fw -w  <radio address>
 ```
 where ```<radio address>``` should be replaced with the radio address of your Crazyflie. For example, if your Crazyflie is operating using radio number 01 and channel E7, you will enter the above command as ```cfloader flash build/cf2.bin stm32-fw -w  radio://0/01/2M/E7E7E7E7E7```
+
 
 ## License
 Please read the license attached to this repository
