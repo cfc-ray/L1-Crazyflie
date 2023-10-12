@@ -6,3 +6,6 @@ cf2.*
 *.cmd
 *.o
 build/
+
+# data logs
+*.json
