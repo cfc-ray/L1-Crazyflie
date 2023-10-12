@@ -86,7 +86,7 @@ def main():
     client.disconnect()
 
     # Write data from flight
-    client.write_data('hardware_data.json')
+    client.write_data('hover_data.json')
 
 
 if __name__ == '__main__':

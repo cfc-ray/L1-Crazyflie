@@ -50,11 +50,18 @@ def main():
     # activate the L1 controller
     client.cf.param.set_value('stabilizer.controller', 5)
 
-    # fly in a square
+    # fly in a square, pausing at each corner
     client.move_smooth([0., 0., HEIGHT], [0., LENGTH, HEIGHT], 0., 4.0)
+    client.move(0, LENGTH, HEIGHT, 0, 1)
+
     client.move_smooth([0., LENGTH, HEIGHT], [LENGTH, LENGTH, HEIGHT], 0., 4.0)
+    client.move(LENGTH, LENGTH, HEIGHT, 0, 1)
+
     client.move_smooth([LENGTH, LENGTH, HEIGHT], [LENGTH, 0., HEIGHT], 0., 4.0)
+    client.move(LENGTH, 0, HEIGHT, 0, 1)
+
     client.move_smooth([LENGTH, 0., HEIGHT], [0., 0., HEIGHT], 0., 4.0)
+    client.move(0, 0, HEIGHT, 0, 1)
 
     # land
     print('\nlanding...\n')
@@ -68,7 +75,7 @@ def main():
     client.disconnect()
 
     # Write data from flight
-    client.write_data('hardware_data.json')
+    client.write_data('square_data.json')
 
 
 if __name__ == '__main__':
