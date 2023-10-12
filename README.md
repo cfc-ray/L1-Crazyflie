@@ -6,6 +6,10 @@ This project contains an implementation of the L1 Adaptive Control for Crazyflie
 
 *If you're new to flying with Crazyflie, follow their official documentation to assemble the drone, download and install the client (cflib), build and flash the firmware, and configure radio permissions. You should be able to connect to the Crazyflie remotely using the Crazyradio before you move on. For more information see Bitcraze's 'getting started' page [here](https://www.bitcraze.io/documentation/tutorials/getting-started-with-crazyflie-2-x/)* 
 
+1. **Hardware setup**
+
+We *strongly encourage* you to use some additional sensors to help the Crazyflie with localization. The simplest way to do this is to purchase an Optical Flow deck [(linked here)](). If you are using some sort of external localization tool such as Vicon, Optitrack, or any of the Crazyswarm solutions (like LPS or Lighthouse) that's fine too. Without this additional sensing capability the Crazyflie will really struggle to generate an accurate state estimate, and some controllers may even fail to run.
+
 1. **Install dependencies**
 
 Our biggest dependencies are with the Crazyflie ecosystem. Start by installing the client and a toolchain to build the firmware with. Links can be found below
