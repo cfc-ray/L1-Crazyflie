@@ -26,11 +26,9 @@ git clone --recursive https://github.com/cfc-ray/L1-Crazyflie.git
 
 3. **Build the firmware**
 
-The L1 adaptive controller has been implemented using the app layer in the Crazyflie firmware. This means there are no modifications needed to the main firmware - our code exists as an add-on. Follow the steps below to configure the main firmware, then compile it with the L1 controller included. You should start off in the root directory for this repo ```L1-Crazyflie```
+The L1 adaptive controller has been implemented using the app layer in the Crazyflie firmware. This means there are no modifications needed to the main firmware - our code exists as an add-on. Follow the steps below to build the L1 adaptive controller alongside the main firmware.
 ```
-cd crazyflie-firmware
-make cf2_defconfig
-cd ../controller_L1
+cd L1-Crazyflie/controller_L1/
 make -j 12
 ```
 
