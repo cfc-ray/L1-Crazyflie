@@ -8,9 +8,9 @@ This project contains an implementation of the L1 Adaptive Control for Crazyflie
 
 1. **Hardware setup**
 
-We *strongly encourage* you to use some additional sensors to help the Crazyflie with localization. The simplest way to do this is to purchase an Optical Flow deck [(linked here)](). If you are using some sort of external localization tool such as Vicon, Optitrack, or any of the Crazyswarm solutions (like LPS or Lighthouse) that's fine too. Without this additional sensing capability the Crazyflie will really struggle to generate an accurate state estimate, and some controllers may even fail to run.
+We *strongly encourage* you to use some additional sensors to help the Crazyflie with localization. The simplest way to do this is to purchase an Optical Flow deck [(linked here)](https://store.bitcraze.io/collections/decks/products/flow-deck-v2). If you are using some sort of external localization tool such as Vicon, Optitrack, or any of the Crazyswarm solutions (like LPS or Lighthouse) that's fine too. Without this additional sensing capability the Crazyflie will really struggle to generate an accurate state estimate, and some controllers may even fail to run.
 
-1. **Install dependencies**
+2. **Install dependencies**
 
 Our biggest dependencies are with the Crazyflie ecosystem. Start by installing the client and a toolchain to build the firmware with. Links can be found below
 - [client](https://www.bitcraze.io/documentation/repository/crazyflie-clients-python/master/installation/install/)
@@ -23,12 +23,12 @@ From here, we add a select few dependencies of our own.
 pip install pyyaml
 ```
 
-2. **Clone this repository**
+3. **Clone this repository**
 ```
 git clone --recursive https://github.com/cfc-ray/L1-Crazyflie.git
 ```
 
-3. **Build the firmware**
+4. **Build the firmware**
 
 The L1 adaptive controller has been implemented using the app layer in the Crazyflie firmware. This means there are no modifications needed to the main firmware - our code exists as an add-on. Follow the steps below to build the L1 adaptive controller alongside the main firmware.
 ```
@@ -36,7 +36,7 @@ cd L1-Crazyflie/controller_L1/
 make -j 12
 ```
 
-4. **Flash the firmware to your Crazyflie**
+5. **Flash the firmware to your Crazyflie**
 
 You should now be in the L1 controller directory ```controller_L1```. Power on your Crazyflie and connected a Crazyradio to your computer. Then run the following command.
 ```
