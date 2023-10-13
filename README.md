@@ -55,7 +55,9 @@ All that's needed is to run one of the flight scripts in the ```flight_commands/
 cd flight_commands
 python3 hover.py
 ```
-Follow the directions printed out in the terminal to turn the L1 adaptive control on and off.
+Follow the directions printed out in the terminal to turn the L1 adaptive control on and off. The image below depicts an example of the correct terminal output if everything is set up and running correctly.
+
+![My Image](resources/L1-Crazyflie_terminal_screenshot.png)
 
 ## Integration with existing work
 
