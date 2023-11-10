@@ -8,13 +8,13 @@ This project contains an implementation of the L1 Adaptive Control for Crazyflie
 
 1. **Hardware setup**
 
-We *strongly encourage* you to use some additional sensors to help the Crazyflie with localization. The simplest way to do this is to purchase an Optical Flow deck [(linked here)](https://store.bitcraze.io/collections/decks/products/flow-deck-v2). If you are using some sort of external localization tool such as Vicon, Optitrack, or any of the Crazyswarm solutions (like LPS or Lighthouse) that's fine too. Without this additional sensing capability the Crazyflie will really struggle to generate an accurate state estimate, and some controllers may even fail to run.
+We *strongly encourage* you to use some additional sensors to help the Crazyflie with localization. The simplest way to do this is with an Optical Flow deck [(linked here)](https://store.bitcraze.io/collections/decks/products/flow-deck-v2). If you are using some sort of external localization tool such as Vicon, Optitrack, or any native Crazyswarm solutions (like LPS or Lighthouse) that's fine too. Without this additional sensing capability the Crazyflie will struggle to generate an accurate state estimate, and some controllers may fail entirely.
 
 2. **Install dependencies**
 
 Our biggest dependencies are with the Crazyflie ecosystem. Start by installing the client and a toolchain to build the firmware with. Links can be found below
 - [client](https://www.bitcraze.io/documentation/repository/crazyflie-clients-python/master/installation/install/) -- work up until the 'Extra' section, then return here
-- [firmware](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/building-and-flashing/build/) -- follow the directions to install an ARM toolchain, then return here. we'll cover the rest of the content on this page in a little bit.
+- [firmware](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/building-and-flashing/build/) -- follow the directions to install an ARM toolchain, then return here. we'll cover the rest of the content on this page later.
 
 From here, we add a select few dependencies of our own.
 ```
