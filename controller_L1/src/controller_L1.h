@@ -197,7 +197,7 @@ bool controllerL1Test(void)
 }
 
 
-void bslnPWMtoSI(void)
+void bslnCMDtoSI(void)
 {
   // convert u_b in PWM to motor power commands in PWM
   float t = bsln_pwm_thrust;
@@ -223,7 +223,7 @@ void bslnPWMtoSI(void)
 
 }
 
-void cmdSItoPWM(void)
+void totalSItoCMD(void)
 {
   // convert u_adj in SI to motor power commands in SI
   float t = cmd_SI_thrust    * (0.25f);
@@ -258,26 +258,26 @@ void L1Augmentation(struct mat33 currentR, struct vec currentVel, struct vec cur
 
 // ------------------ PREDICTOR ------------------
 
-  // compute Z_f and Z_m -> vectors that combine the baseline control, adjusted control, and uncertainty
-  struct vec Z_f = mkvec(
+  // compute K_f and K_m -> vectors that combine the baseline control, adjusted control, and uncertainty
+  struct vec K_f = mkvec(
     sigma_f.x, 
     sigma_f.y, 
     sigma_f.z + bsln_SI_thrust_prev + adj_SI_thrust_prev
   );
-  struct vec Z_m = vadd3(bsln_SI_moments_prev, adj_SI_moments_prev, sigma_m);
+  struct vec K_m = vadd3(bsln_SI_moments_prev, adj_SI_moments_prev, sigma_m);
 
   // calculate v_hat_dot
   struct vec v_hat_dot = vadd4(
     mkvec(0.0, 0.0, -GRAVITY_MAGNITUDE), 
-    vscl((1/g_vehicleMass) * Z_f.z, zB), 
-    vadd(vscl((1/g_vehicleMass)*Z_f.x, xB), vscl((1/g_vehicleMass)*Z_f.y, yB)), 
+    vscl((1/g_vehicleMass) * K_f.z, zB), 
+    vadd(vscl((1/g_vehicleMass)*K_f.x, xB), vscl((1/g_vehicleMass)*K_f.y, yB)), 
     veltmul(As_v, v_tilda)
   );
 
   // calculate w_hat_dot
   struct vec w_hat_dot = vadd3(
     vcross(mvmul(mneg(Jinv), stateOmegaPrev), mvmul(J, stateOmegaPrev)), 
-    mvmul(Jinv, Z_m), 
+    mvmul(Jinv, K_m), 
     veltmul(As_w, w_tilda)
   );
 
@@ -536,7 +536,7 @@ void controllerL1(control_t *control, const setpoint_t *setpoint,
 
 
   // convert baseline control inputs into standard units
-  bslnPWMtoSI();
+  bslnCMDtoSI();
 
   // do L1, but try to avoid running L1 if the drone is sitting on the ground
   if (cmd_thrust > 0){
@@ -548,7 +548,7 @@ void controllerL1(control_t *control, const setpoint_t *setpoint,
   cmd_SI_moments = vadd(bsln_SI_moments, adj_SI_moments);  
 
   // convert total control inputs back into CF units, from standard units
-  cmdSItoPWM();
+  totalSItoCMD();
 
   // apply control inputs
   control->thrust = cmd_thrust;
@@ -576,7 +576,7 @@ void controllerL1(control_t *control, const setpoint_t *setpoint,
 
 
 // Tuning variables for the L1 Adaptive Controller
-PARAM_GROUP_START(ctrlL1)
+PARAM_GROUP_START(ctrlL1params)
 
 PARAM_ADD(PARAM_FLOAT, kp_x, &kp_x)                 // P-gain for x-position
 PARAM_ADD(PARAM_FLOAT, kp_y, &kp_y)                 // P-gain for y-position
@@ -595,9 +595,9 @@ PARAM_ADD(PARAM_FLOAT, kd_omega_rp, &kd_omega_rp)   // D-gain for roll and pitch
 PARAM_ADD(PARAM_FLOAT, w_f1, &w_f1)                 // LPF cutoff frequency, forces (1/2)
 PARAM_ADD(PARAM_FLOAT, w_f2, &w_f2)                 // LPF cutoff frequency, forces (2/2)
 PARAM_ADD(PARAM_FLOAT, w_m1, &w_m1)                 // LPF cutoff frequency, moments (1/2)
-PARAM_ADD(PARAM_FLOAT, w_m2, &w_m2)                 // LPF cutoff frequency, moments (1/2)
+PARAM_ADD(PARAM_FLOAT, w_m2, &w_m2)                 // LPF cutoff frequency, moments (2/2)
 
-PARAM_GROUP_STOP(ctrlL1)
+PARAM_GROUP_STOP(ctrlL1params)
 
 
 // Logging variables for the L1 Adaptive Controller
