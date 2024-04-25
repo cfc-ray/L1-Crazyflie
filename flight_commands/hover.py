@@ -15,7 +15,7 @@ import cflib.crtp
 from simple_client import SimpleClient
 
 
-HEIGHT = 0.4
+HEIGHT = 0.5
 
 
 def main():
@@ -71,6 +71,8 @@ def main():
                 client.disconnect()
         else:
             client.remain_hovering = False
+
+        
         
         time.sleep(0.1)
 

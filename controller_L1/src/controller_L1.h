@@ -100,26 +100,21 @@ static struct vec sigma_f;
 static struct vec sigma_m;
 
 // low pass filter
-static float w_f1 =  1.0f;
-static float w_f2 =  1.0f;
-static float w_m1 = 10.0f;
-static float w_m2 =  1.0f;
+static float w_f =   5.0f;
+static float w_m1 =  5.0f;
+static float w_m2 = 15.0f;
 
-static float lpf_f1_coef1;
-static float lpf_f1_coef2;
-static float lpf_f2_coef1;
-static float lpf_f2_coef2;
+static float lpf_f_coef1;
+static float lpf_f_coef2;
 static float lpf_m1_coef1;
 static float lpf_m1_coef2;
 static float lpf_m2_coef1;
 static float lpf_m2_coef2;
 
-static float sigma_fz_filt1;
-static float sigma_fz_filt2;
+static float sigma_fz_filt;
 static struct vec sigma_m_filt1;
 static struct vec sigma_m_filt2;
-static float sigma_fz_filt1_prev;
-static float sigma_fz_filt2_prev;
+static float sigma_fz_filt_prev;
 static struct vec sigma_m_filt1_prev;
 static struct vec sigma_m_filt2_prev;
 
@@ -129,17 +124,22 @@ static float thrustToTorque = 0.005964552f;
 // logging variables
 static struct vec z_axis_desired;
 
-static float bsln_pwm_thrust;
+static float bsln_CMD_thrust;
 static float bsln_SI_thrust;
 static float adj_SI_thrust;
 static float bsln_SI_thrust_prev;
 static float adj_SI_thrust_prev;
 
-static struct vec bsln_pwm_moments;
+static struct vec bsln_CMD_moments;
 static struct vec bsln_SI_moments;
 static struct vec adj_SI_moments;
 static struct vec bsln_SI_moments_prev;
 static struct vec adj_SI_moments_prev;
+
+static float adj_CMD_thrust;
+static float adj_CMD_roll;
+static float adj_CMD_pitch;
+static float adj_CMD_yaw;
 
 static float cmd_thrust;
 static float cmd_roll;
@@ -169,12 +169,10 @@ void controllerL1Reset(void)
   sigma_m = mkvec(0.0f, 0.0f, 0.0f);
 
   // reset LPF
-  sigma_fz_filt1 = 0.0f;
-  sigma_fz_filt2 = 0.0f;
+  sigma_fz_filt = 0.0f;
   sigma_m_filt1 = mkvec(0.0f, 0.0f, 0.0f);
   sigma_m_filt2 = mkvec(0.0f, 0.0f, 0.0f);
-  sigma_fz_filt1_prev = 0.0f;
-  sigma_fz_filt2_prev = 0.0f;
+  sigma_fz_filt_prev = 0.0f;
   sigma_m_filt1_prev = mkvec(0.0f, 0.0f, 0.0f);
   sigma_m_filt2_prev = mkvec(0.0f, 0.0f, 0.0f);
 
@@ -200,10 +198,10 @@ bool controllerL1Test(void)
 void bslnCMDtoSI(void)
 {
   // convert u_b in PWM to motor power commands in PWM
-  float t = bsln_pwm_thrust;
-  float r = bsln_pwm_moments.x;
-  float p = bsln_pwm_moments.y;
-  float y = bsln_pwm_moments.z;
+  float t = bsln_CMD_thrust;
+  float r = bsln_CMD_moments.x;
+  float p = bsln_CMD_moments.y;
+  float y = bsln_CMD_moments.z;
 
   float bsln_m1_PWM = t - r - p - y;
   float bsln_m2_PWM = t - r + p + y;
@@ -314,21 +312,18 @@ void L1Augmentation(struct mat33 currentR, struct vec currentVel, struct vec cur
   // ------------------ LOW PASS FILTER ------------------
 
   // filter SI measurements
-  lpf_f1_coef1 = expf(-w_f1*dt);
-  lpf_f1_coef2 = 1.0f - lpf_f1_coef1;
-  lpf_f2_coef1 = expf(-w_f2*dt);
-  lpf_f2_coef2 = 1.0f - lpf_f2_coef1;
+  lpf_f_coef1 = expf(-w_f*dt);
+  lpf_f_coef2 = 1.0f - lpf_f_coef1;
   lpf_m1_coef1 = expf(-w_m1*dt);
   lpf_m1_coef2 = 1.0f - lpf_m1_coef1;
   lpf_m2_coef1 = expf(-w_m2*dt);
   lpf_m2_coef2 = 1.0f - lpf_m2_coef1;
 
-  sigma_fz_filt1 =  (lpf_f1_coef1  * sigma_fz_filt1_prev)  + (lpf_f1_coef2  * sigma_f.z);
-  sigma_fz_filt2 =  (lpf_f2_coef2  * sigma_fz_filt2_prev) + (lpf_f2_coef2  * sigma_fz_filt1);
+  sigma_fz_filt =  (lpf_f_coef1  * sigma_fz_filt_prev)  + (lpf_f_coef2  * sigma_f.z);
   sigma_m_filt1 = vadd(vscl(lpf_m1_coef1, sigma_m_filt1_prev), vscl(lpf_m1_coef2, sigma_m));
   sigma_m_filt2 = vadd(vscl(lpf_m2_coef1, sigma_m_filt2_prev), vscl(lpf_m2_coef2, sigma_m_filt1));
 
-  adj_SI_thrust = -sigma_fz_filt1;
+  adj_SI_thrust = -sigma_fz_filt;
   adj_SI_moments = mkvec(-sigma_m_filt2.x, -sigma_m_filt2.y, -sigma_m_filt2.z);
 
 
@@ -339,8 +334,7 @@ void L1Augmentation(struct mat33 currentR, struct vec currentVel, struct vec cur
   w_hat_prev = w_hat;
 
   // LPF
-  sigma_fz_filt1_prev = sigma_fz_filt1;
-  sigma_fz_filt2_prev = sigma_fz_filt2;
+  sigma_fz_filt_prev = sigma_fz_filt;
   sigma_m_filt1_prev = sigma_m_filt1;
   sigma_m_filt2_prev = sigma_m_filt2;
 
@@ -480,14 +474,12 @@ void controllerL1(control_t *control, const setpoint_t *setpoint,
   float err_d_pitch = 0;
 
   float stateAttitudeRateRoll = radians(sensors->gyro.x);
-  // float stateAttitudeRatePitch = -radians(sensors->gyro.y);   // change here (original had the negative)
   float stateAttitudeRatePitch = radians(sensors->gyro.y);
   float stateAttitudeRateYaw = radians(sensors->gyro.z);
 
   struct vec stateOmega = mkvec(stateAttitudeRateRoll, -stateAttitudeRatePitch, stateAttitudeRateYaw);
 
   float setpointAttitudeRateRoll = radians(setpoint->attitudeRate.roll);
-  // float setpointAttitudeRatePitch = -radians(setpoint->attitudeRate.pitch); // change here (original had the negative)
   float setpointAttitudeRatePitch = radians(setpoint->attitudeRate.pitch);
   float setpointAttitudeRateYaw = radians(setpoint->attitudeRate.yaw);
 
@@ -496,7 +488,6 @@ void controllerL1(control_t *control, const setpoint_t *setpoint,
   ew.z = setpointAttitudeRateYaw - stateAttitudeRateYaw;
   if (stateOmegaPrev_roll == stateOmegaPrev_roll) { /* d part initialized */
     err_d_roll = ((radians(setpoint->attitudeRate.roll) - setpointOmegaPrev_roll) - (stateAttitudeRateRoll - stateOmegaPrev_roll)) / dt;
-    // err_d_pitch = (-(radians(setpoint->attitudeRate.pitch) - setpointOmegaPrev_pitch) - (stateAttitudeRatePitch - stateOmegaPrev_pitch)) / dt;   // change here (only the first term was originally negative) 
     err_d_pitch = ((radians(setpoint->attitudeRate.pitch) - setpointOmegaPrev_pitch) - (stateAttitudeRatePitch - stateOmegaPrev_pitch)) / dt;
   }
   stateOmegaPrev_roll = stateAttitudeRateRoll;
@@ -511,25 +502,21 @@ void controllerL1(control_t *control, const setpoint_t *setpoint,
 
   // calculate baseline force
   if (setpoint->mode.z == modeDisable) {
-    bsln_pwm_thrust = setpoint->thrust;
+    bsln_CMD_thrust = setpoint->thrust;
   } else {
-    bsln_pwm_thrust = current_thrust * massThrust;
+    bsln_CMD_thrust = current_thrust * massThrust;
   }
 
-  // r_roll = radians(sensors->gyro.x);
-  // r_pitch = -radians(sensors->gyro.y);
-  // r_yaw = radians(sensors->gyro.z);
-
   // calculate baseline moments
-  if (bsln_pwm_thrust > 0) {
-    bsln_pwm_moments.x = clamp(M.x, -32000, 32000);
-    bsln_pwm_moments.y = clamp(M.y, -32000, 32000);
-    bsln_pwm_moments.z = clamp(-M.z, -32000, 32000);
+  if (bsln_CMD_thrust > 0) {
+    bsln_CMD_moments.x = clamp(M.x, -32000, 32000);
+    bsln_CMD_moments.y = clamp(M.y, -32000, 32000);
+    bsln_CMD_moments.z = clamp(-M.z, -32000, 32000);
 
   } else {
-    bsln_pwm_moments.x = 0;
-    bsln_pwm_moments.y = 0;
-    bsln_pwm_moments.z = 0;
+    bsln_CMD_moments.x = 0;
+    bsln_CMD_moments.y = 0;
+    bsln_CMD_moments.z = 0;
 
     controllerL1Reset();
   }
@@ -538,7 +525,7 @@ void controllerL1(control_t *control, const setpoint_t *setpoint,
   // convert baseline control inputs into standard units
   bslnCMDtoSI();
 
-  // do L1, but try to avoid running L1 if the drone is sitting on the ground
+  // do L1, but try to avoid if the drone is sitting on the ground
   if (cmd_thrust > 0){
     L1Augmentation(R, stateVel, stateOmega, dt);
   }
@@ -570,6 +557,11 @@ void controllerL1(control_t *control, const setpoint_t *setpoint,
   cmd_roll_prev = cmd_roll;
   cmd_pitch_prev = cmd_pitch;
   cmd_yaw_prev = cmd_yaw;
+
+  adj_CMD_thrust = cmd_thrust - bsln_CMD_thrust;
+  adj_CMD_roll = cmd_roll - bsln_CMD_moments.x;
+  adj_CMD_pitch = cmd_pitch - bsln_CMD_moments.y;
+  adj_CMD_yaw = cmd_yaw - bsln_CMD_moments.z;
 }
 
 
@@ -592,8 +584,7 @@ PARAM_ADD(PARAM_FLOAT, ko_y, &ko_y)                 // D-gain for roll angle
 PARAM_ADD(PARAM_FLOAT, ko_z, &ko_z)                 // D-gain for yaw angle
 PARAM_ADD(PARAM_FLOAT, kd_omega_rp, &kd_omega_rp)   // D-gain for roll and pitch angular velocity
 
-PARAM_ADD(PARAM_FLOAT, w_f1, &w_f1)                 // LPF cutoff frequency, forces (1/2)
-PARAM_ADD(PARAM_FLOAT, w_f2, &w_f2)                 // LPF cutoff frequency, forces (2/2)
+PARAM_ADD(PARAM_FLOAT, w_f, &w_f)                   // LPF cutoff frequency, forces
 PARAM_ADD(PARAM_FLOAT, w_m1, &w_m1)                 // LPF cutoff frequency, moments (1/2)
 PARAM_ADD(PARAM_FLOAT, w_m2, &w_m2)                 // LPF cutoff frequency, moments (2/2)
 
@@ -603,10 +594,20 @@ PARAM_GROUP_STOP(ctrlL1params)
 // Logging variables for the L1 Adaptive Controller
 LOG_GROUP_START(ctrlL1)
 
-LOG_ADD(LOG_FLOAT, bsln_thrust, &bsln_pwm_thrust)   // baseline thrust command
-LOG_ADD(LOG_FLOAT, bsln_roll, &bsln_pwm_moments.x)  // baseline roll command
-LOG_ADD(LOG_FLOAT, bsln_pitch, &bsln_pwm_moments.y) // baseline pitch command
-LOG_ADD(LOG_FLOAT, bsln_yaw, &bsln_pwm_moments.z)   // baseline yaw command
+LOG_ADD(LOG_FLOAT, bsln_thrust, &bsln_CMD_thrust)   // baseline thrust command (commanded units)
+LOG_ADD(LOG_FLOAT, bsln_roll, &bsln_CMD_moments.x)  // baseline roll command (commanded units)
+LOG_ADD(LOG_FLOAT, bsln_pitch, &bsln_CMD_moments.y) // baseline pitch command (commanded units)
+LOG_ADD(LOG_FLOAT, bsln_yaw, &bsln_CMD_moments.z)   // baseline yaw command (commanded units)
+
+LOG_ADD(LOG_FLOAT, adj_CMD_thrust, &adj_CMD_thrust) // adjusted thrust command (from the L1) (commanded units)
+LOG_ADD(LOG_FLOAT, adj_CMD_roll, &adj_CMD_roll)     // adjusted roll command (from the L1) (commanded units)
+LOG_ADD(LOG_FLOAT, adj_CMD_pitch, &adj_CMD_pitch)   // adjusted pitch command (from the L1) (commanded units)
+LOG_ADD(LOG_FLOAT, adj_CMD_yaw, &adj_CMD_yaw)       // adjusted yaw command (from the L1) (commanded units)
+
+LOG_ADD(LOG_FLOAT, cmd_thrust, &cmd_thrust)         // total thrust command (commanded units)
+LOG_ADD(LOG_FLOAT, cmd_Mx, &cmd_roll)               // total roll command (commanded units)
+LOG_ADD(LOG_FLOAT, cmd_My, &cmd_pitch)              // total pitch command (commanded units)
+LOG_ADD(LOG_FLOAT, cmd_Mz, &cmd_yaw)                // total yaw command (commanded units)
 
 LOG_ADD(LOG_FLOAT, unc_fx, &sigma_f.x)              // uncertainty estimate, x-component force (Newtons)
 LOG_ADD(LOG_FLOAT, unc_fy, &sigma_f.y)              // uncertainty estimate, y-component force (Newtons)
@@ -614,10 +615,5 @@ LOG_ADD(LOG_FLOAT, unc_fz, &sigma_f.z)              // uncertainty estimate, z-c
 LOG_ADD(LOG_FLOAT, unc_Mx, &sigma_m.x)              // uncertainty estimate, x-component moment (Newtons)
 LOG_ADD(LOG_FLOAT, unc_My, &sigma_m.y)              // uncertainty estimate, y-component moment (Newtons)
 LOG_ADD(LOG_FLOAT, unc_Mz, &sigma_m.z)              // uncertainty estimate, z-component moment (Newtons)
-
-LOG_ADD(LOG_FLOAT, cmd_thrust, &cmd_thrust)         // total thrust command
-LOG_ADD(LOG_FLOAT, cmd_Mx, &cmd_roll)               // total roll command
-LOG_ADD(LOG_FLOAT, cmd_My, &cmd_pitch)              // total pitch command
-LOG_ADD(LOG_FLOAT, cmd_Mz, &cmd_yaw)                // total yaw command
 
 LOG_GROUP_STOP(ctrlL1)
